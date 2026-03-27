@@ -1,4 +1,7 @@
 {
+    "name": "salon-system/app",
+    "description": "Real‑time salon appointment system with WebSocket CRUD",
+    "license": "proprietary",
     "require": {
         "cboden/ratchet": "^0.4"
     }
