@@ -1,10 +1,9 @@
-This project uses Ratchet, a PHP WebSocket library, to handle real‑time communication. All PHP dependencies, including Ratchet, are managed with Composer.
+This project uses **Ratchet**, a PHP WebSocket library, to handle real‑time communication. All PHP dependencies, including Ratchet and `vlucas/phpdotenv`, are managed with Composer.
 
-To set up the project locally:
+## Environment Configuration
 
-Ensure Composer is installed.
+The database credentials are **not hardcoded**. Instead, they are loaded from a `.env` file.
 
-Run the following command in the project root:
-
-composer install
-This will read the composer.json file, download Ratchet and its required packages, and generate the autoloader. After installation, you are ready to start using Ratchet for real‑time messaging.
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
