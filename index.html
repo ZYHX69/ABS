@@ -1,38 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Salon System Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book an Appointment | Elegance & Co.</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .booking-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .booking-container h1 { text-align: center; margin-bottom: 10px; color: #c49a6c; }
+        .booking-container p { text-align: center; color: #8b6b4a; margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; color: #4a3b2c; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #e2d5c0; border-radius: 30px; }
+        button { background: #c49a6c; color: white; border: none; padding: 12px; border-radius: 40px; cursor: pointer; width: 100%; font-weight: bold; }
+        .message { margin-top: 20px; padding: 10px; border-radius: 30px; text-align: center; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .service-card { background: #faf5ee; border: 1px solid #e2d5c0; border-radius: 20px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .service-card.selected { background: #e8ddd0; border-color: #c49a6c; }
+        .service-name { font-weight: bold; color: #8b6b4a; }
+        .service-duration, .service-price { font-size: 0.8rem; color: #b0a088; }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Salon Appointment System</h2>
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
+    <div class="booking-container">
+        <h1>💇‍♀️ Book an Appointment</h1>
+        <p>Select a service and fill out your details. We'll confirm shortly.</p>
+        <div id="loading">Loading available services...</div>
+        <div id="serviceSelection" style="display: none;"><h3>Our Services</h3><div id="servicesList"></div></div>
+        <form id="bookingForm" style="display: none;">
+            <input type="hidden" id="serviceId">
+            <div class="form-group"><label>Full Name *</label><input type="text" id="customerName" required></div>
+            <div class="form-group"><label>Email *</label><input type="email" id="customerEmail" required></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="customerPhone"></div>
+            <div class="form-group"><label>Preferred Date *</label><input type="date" id="preferredDate" required></div>
+            <div class="form-group"><label>Preferred Time *</label><input type="time" id="preferredTime" required></div>
+            <button type="submit">Submit Booking Request</button>
         </form>
-        <div id="error"></div>
+        <div id="messageArea"></div>
+        <a href="login.html" style="display:block; text-align:center; margin-top:20px; color:#c49a6c;">← Staff/Admin Login</a>
     </div>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            const response = await fetch('php/auth.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+        let ws, services = [], selectedServiceId = null;
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:8080');
+            ws.onopen = () => ws.send(JSON.stringify({ action: 'guest_connect' }));
+            ws.onmessage = (e) => {
+                const msg = JSON.parse(e.data);
+                if (msg.event === 'guest_authenticated') ws.send(JSON.stringify({ action: 'get', module: 'service', page: 1, limit: 100 }));
+                else if (msg.event === 'data' && msg.module === 'service') { services = msg.data; displayServices(services); document.getElementById('loading').style.display = 'none'; document.getElementById('serviceSelection').style.display = 'block'; }
+                else if (msg.event === 'ack' && msg.action === 'create' && msg.module === 'public_booking') { showMessage('Booking submitted! ID: '+msg.id, 'success'); document.getElementById('bookingForm').reset(); document.querySelectorAll('.service-card').forEach(c=>c.classList.remove('selected')); document.getElementById('bookingForm').style.display = 'none'; selectedServiceId=null; }
+                else if (msg.event === 'ack' && !msg.success) showMessage('Error: '+msg.error, 'error');
+            };
+            ws.onclose = () => setTimeout(connectWebSocket, 3000);
+        }
+        function displayServices(servicesList) {
+            const container = document.getElementById('servicesList');
+            container.innerHTML = '';
+            servicesList.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.innerHTML = `<div class="service-name">${s.name}</div><div class="service-duration">${s.duration} min</div><div class="service-price">$${parseFloat(s.price).toFixed(2)}</div>`;
+                card.onclick = () => { document.querySelectorAll('.service-card').forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); selectedServiceId = s.id; document.getElementById('serviceId').value = s.id; document.getElementById('bookingForm').style.display = 'block'; };
+                container.appendChild(card);
             });
-            const result = await response.json();
-            if (result.success) {
-                localStorage.setItem('token', result.token);
-                window.location.href = 'dashboard.html';
-            } else {
-                document.getElementById('error').innerText = result.message;
-            }
+        }
+        function showMessage(text, type) { const msgDiv = document.getElementById('messageArea'); msgDiv.innerHTML = `<div class="message ${type}">${text}</div>`; setTimeout(()=>msgDiv.innerHTML='', 5000); }
+        document.getElementById('bookingForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!selectedServiceId) { showMessage('Please select a service', 'error'); return; }
+            const data = {
+                name: document.getElementById('customerName').value.trim(),
+                email: document.getElementById('customerEmail').value.trim(),
+                phone: document.getElementById('customerPhone').value.trim(),
+                service_id: selectedServiceId,
+                date: document.getElementById('preferredDate').value,
+                time: document.getElementById('preferredTime').value
+            };
+            if (!data.name || !data.email || !data.date || !data.time) { showMessage('Please fill all required fields', 'error'); return; }
+            if (!/^\S+@\S+\.\S+$/.test(data.email)) { showMessage('Invalid email', 'error'); return; }
+            ws.send(JSON.stringify({ action: 'create', module: 'public_booking', data: data }));
+            e.target.querySelector('button').disabled = true;
+            setTimeout(()=>e.target.querySelector('button').disabled=false, 3000);
         });
+        connectWebSocket();
     </script>
 </body>
 </html>

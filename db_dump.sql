@@ -1,6 +1,7 @@
 CREATE DATABASE IF NOT EXISTS salon;
 USE salon;
 
+-- Existing tables
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -38,6 +39,28 @@ CREATE TABLE audit_logs (
     details TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- New tables for the two final modules
+CREATE TABLE services (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    duration INT NOT NULL COMMENT 'minutes',
+    price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE public_bookings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(100) NOT NULL,
+    customer_email VARCHAR(100) NOT NULL,
+    customer_phone VARCHAR(20),
+    service_id INT NOT NULL,
+    preferred_date DATE NOT NULL,
+    preferred_time TIME NOT NULL,
+    status ENUM('pending', 'confirmed', 'cancelled') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE
 );
 
 -- Users (hashed password for "password")
@@ -161,7 +184,41 @@ INSERT INTO appointments (client_id, service, appointment_date, appointment_time
 (9, 'Manicure', '2025-04-08', '09:00:00', 'scheduled'),
 (10, 'Pedicure', '2025-04-08', '10:30:00', 'scheduled');
 
+-- Services (6 dummy records, can be extended)
+INSERT INTO services (name, duration, price) VALUES
+('Haircut', 30, 25.00),
+('Manicure', 45, 35.00),
+('Pedicure', 60, 45.00),
+('Facial', 50, 55.00),
+('Massage', 60, 70.00),
+('Hair Coloring', 90, 80.00);
+
+-- Public Bookings (20 dummy records, creating a mix of pending, confirmed, cancelled)
+INSERT INTO public_bookings (customer_name, customer_email, customer_phone, service_id, preferred_date, preferred_time, status) VALUES
+('Anna Garcia', 'anna@example.com', '555-1001', 1, CURDATE() + INTERVAL 1 DAY, '09:00:00', 'pending'),
+('Brian Lee', 'brian@example.com', '555-1002', 2, CURDATE() + INTERVAL 2 DAY, '10:30:00', 'confirmed'),
+('Carla Smith', 'carla@example.com', '555-1003', 3, CURDATE() + INTERVAL 3 DAY, '11:00:00', 'pending'),
+('David Kim', 'david@example.com', '555-1004', 4, CURDATE() + INTERVAL 1 DAY, '14:00:00', 'cancelled'),
+('Emma Jones', 'emma@example.com', '555-1005', 5, CURDATE() + INTERVAL 2 DAY, '15:30:00', 'pending'),
+('Frank White', 'frank@example.com', '555-1006', 6, CURDATE() + INTERVAL 4 DAY, '09:30:00', 'confirmed'),
+('Grace Lee', 'grace@example.com', '555-1007', 1, CURDATE() + INTERVAL 5 DAY, '11:00:00', 'pending'),
+('Henry Brown', 'henry@example.com', '555-1008', 2, CURDATE() + INTERVAL 1 DAY, '13:00:00', 'pending'),
+('Isabel Green', 'isabel@example.com', '555-1009', 3, CURDATE() + INTERVAL 3 DAY, '10:00:00', 'confirmed'),
+('Jack Black', 'jack@example.com', '555-1010', 4, CURDATE() + INTERVAL 2 DAY, '12:00:00', 'cancelled'),
+('Karen Wilson', 'karen@example.com', '555-1011', 5, CURDATE() + INTERVAL 6 DAY, '09:00:00', 'pending'),
+('Liam Miller', 'liam@example.com', '555-1012', 6, CURDATE() + INTERVAL 1 DAY, '14:30:00', 'pending'),
+('Mia Davis', 'mia@example.com', '555-1013', 1, CURDATE() + INTERVAL 4 DAY, '10:00:00', 'confirmed'),
+('Noah Martinez', 'noah@example.com', '555-1014', 2, CURDATE() + INTERVAL 5 DAY, '11:30:00', 'pending'),
+('Olivia Rodriguez', 'olivia@example.com', '555-1015', 3, CURDATE() + INTERVAL 2 DAY, '13:30:00', 'confirmed'),
+('Paul Hernandez', 'paul@example.com', '555-1016', 4, CURDATE() + INTERVAL 3 DAY, '15:00:00', 'pending'),
+('Quinn Lopez', 'quinn@example.com', '555-1017', 5, CURDATE() + INTERVAL 1 DAY, '09:30:00', 'cancelled'),
+('Rose Gonzalez', 'rose@example.com', '555-1018', 6, CURDATE() + INTERVAL 7 DAY, '10:30:00', 'pending'),
+('Sam Perez', 'sam@example.com', '555-1019', 1, CURDATE() + INTERVAL 2 DAY, '11:00:00', 'confirmed'),
+('Tina Thompson', 'tina@example.com', '555-1020', 2, CURDATE() + INTERVAL 3 DAY, '12:15:00', 'pending');
+
 -- Audit logs (sample)
 INSERT INTO audit_logs (user_id, action, module, record_id, details) VALUES
 (1, 'CREATE', 'client', 1, 'Created client John Doe'),
-(1, 'CREATE', 'appointment', 1, 'Created appointment for client 1');
+(1, 'CREATE', 'appointment', 1, 'Created appointment for client 1'),
+(1, 'CREATE', 'service', 1, 'Created service Haircut'),
+(1, 'CREATE', 'public_booking', 1, 'Created booking for Anna Garcia');

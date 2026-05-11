@@ -1,90 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard - Salon System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salon Dashboard | Elegance & Co.</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="header">
-        <h1>Salon Dashboard</h1>
-        <div>Welcome, <span id="username"></span> (<span id="role"></span>)</div>
-        <a href="php/logout.php">Logout</a>
+        <div class="logo">
+            <h1>💇‍♀️ Elegance & Co.</h1>
+            <p>Salon Management System</p>
+        </div>
+        <div class="user-area">
+            <span>👋 Welcome, <span id="username"></span> (<span id="role"></span>)</span>
+            <input type="text" id="globalSearchInput" placeholder="🔍 Search clients, services, bookings...">
+            <button id="globalSearchBtn" class="btn-search">Search</button>
+            <button id="auditLogBtn" class="btn-outline">📜 Audit Logs</button>
+            <a href="php/logout.php" class="btn-logout">🚪 Logout</a>
+        </div>
     </div>
 
     <div class="insights">
         <div class="card">
-            <h3>Clients</h3>
+            <h3>👥 Clients</h3>
             <p id="clientCount">0</p>
         </div>
         <div class="card">
-            <h3>Appointments</h3>
+            <h3>📅 Appointments</h3>
             <p id="appointmentCount">0</p>
         </div>
         <div class="card">
-            <h3>Activity Feed</h3>
-            <ul id="activityFeed"></ul>
+            <h3>💅 Services</h3>
+            <p id="serviceCount">0</p>
         </div>
         <div class="card">
-            <h3>Appointments per Day</h3>
+            <h3>📋 Pending Bookings</h3>
+            <p id="bookingCount">0</p>
+        </div>
+        <div class="card wide-card">
+            <h3>📊 Activity Feed</h3>
+            <ul id="activityFeed"></ul>
+        </div>
+        <div class="card wide-card">
+            <h3>📈 Appointments per Day</h3>
             <canvas id="appointmentsChart"></canvas>
         </div>
     </div>
 
     <div class="modules">
+        <!-- Clients Module -->
         <div class="module">
-            <h2>Clients</h2>
-            <button id="addClientBtn">Add Client</button>
-            <table id="clientsTable">
-                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <h2>👤 Clients</h2>
+            <button class="btn-add" id="addClientBtn">+ Add Client</button>
+            <div class="table-wrapper">
+                <table id="clientsTable">
+                    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th>;</thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="pagination" data-module="client">
+                <button class="prev-page" data-module="client">◀ Previous</button>
+                <span class="page-info" data-module="client">Page 1</span>
+                <button class="next-page" data-module="client">Next ▶</button>
+            </div>
         </div>
+
+        <!-- Appointments Module -->
         <div class="module">
-            <h2>Appointments</h2>
-            <button id="addAppointmentBtn">Add Appointment</button>
-            <table id="appointmentsTable">
-                <thead><tr><th>ID</th><th>Client</th><th>Service</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody></tbody>
-            </table>
+            <h2>📅 Appointments</h2>
+            <button class="btn-add" id="addAppointmentBtn">+ Add Appointment</button>
+            <div class="table-wrapper">
+                <table id="appointmentsTable">
+                    <thead><tr><th>ID</th><th>Client</th><th>Service</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th>;</thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="pagination" data-module="appointment">
+                <button class="prev-page" data-module="appointment">◀ Previous</button>
+                <span class="page-info" data-module="appointment">Page 1</span>
+                <button class="next-page" data-module="appointment">Next ▶</button>
+            </div>
+        </div>
+
+        <!-- Services Module -->
+        <div class="module">
+            <h2>💅 Services</h2>
+            <button class="btn-add" id="addServiceBtn">+ Add Service</button>
+            <div class="table-wrapper">
+                <table id="servicesTable">
+                    <thead><tr><th>ID</th><th>Name</th><th>Duration (min)</th><th>Price ($)</th><th>Actions</th>;</thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="pagination" data-module="service">
+                <button class="prev-page" data-module="service">◀ Previous</button>
+                <span class="page-info" data-module="service">Page 1</span>
+                <button class="next-page" data-module="service">Next ▶</button>
+            </div>
+        </div>
+
+        <!-- Public Bookings Module (Customer Requests) -->
+        <div class="module">
+            <h2>📋 Customer Bookings</h2>
+            <div class="table-wrapper">
+                <table id="bookingsTable">
+                    <thead><tr><th>ID</th><th>Customer</th><th>Email</th><th>Service</th><th>Preferred Date</th><th>Time</th><th>Status</th><th>Actions</th>;</thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="pagination" data-module="public_booking">
+                <button class="prev-page" data-module="public_booking">◀ Previous</button>
+                <span class="page-info" data-module="public_booking">Page 1</span>
+                <button class="next-page" data-module="public_booking">Next ▶</button>
+            </div>
         </div>
     </div>
 
-    <div id="clientModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Client</h3>
-            <form id="clientForm">
-                <input type="hidden" id="clientId">
-                <input type="text" id="clientName" placeholder="Name" required>
-                <input type="email" id="clientEmail" placeholder="Email" required>
-                <input type="text" id="clientPhone" placeholder="Phone">
-                <button type="submit">Save</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="appointmentModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Appointment</h3>
-            <form id="appointmentForm">
-                <input type="hidden" id="appointmentId">
-                <select id="appointmentClientId" required>
-                    <option value="">Select Client</option>
-                </select>
-                <input type="text" id="appointmentService" placeholder="Service" required>
-                <input type="date" id="appointmentDate" required>
-                <input type="time" id="appointmentTime" required>
-                <select id="appointmentStatus">
-                    <option value="scheduled">Scheduled</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-                <button type="submit">Save</button>
-            </form>
-        </div>
-    </div>
+    <!-- Modals -->
+    <div id="clientModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>Client</h3><form id="clientForm"><input type="hidden" id="clientId"><input type="text" id="clientName" placeholder="Full Name" required><input type="email" id="clientEmail" placeholder="Email" required><input type="text" id="clientPhone" placeholder="Phone"><button type="submit" class="btn-save">Save</button></form></div></div>
+    <div id="appointmentModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>Appointment</h3><form id="appointmentForm"><input type="hidden" id="appointmentId"><select id="appointmentClientId" required><option value="">Select Client</option></select><input type="text" id="appointmentService" placeholder="Service" required><input type="date" id="appointmentDate" required><input type="time" id="appointmentTime" required><select id="appointmentStatus"><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select><button type="submit" class="btn-save">Save</button></form></div></div>
+    <div id="serviceModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>Service</h3><form id="serviceForm"><input type="hidden" id="serviceId"><input type="text" id="serviceName" placeholder="Service Name" required><input type="number" id="serviceDuration" placeholder="Duration (minutes)" required><input type="number" id="servicePrice" placeholder="Price ($)" step="0.01" required><button type="submit" class="btn-save">Save</button></form></div></div>
+    <div id="bookingStatusModal" class="modal"><div class="modal-content"><span class="close">&times;</span><h3>Update Booking Status</h3><form id="bookingStatusForm"><input type="hidden" id="bookingId"><select id="bookingStatus" required><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option></select><button type="submit" class="btn-save">Update</button></form></div></div>
+    <div id="auditLogModal" class="modal"><div class="modal-content" style="width: 90%; max-width: 1000px;"><span class="close">&times;</span><h3>Audit Logs</h3><div><label>Filter: </label><select id="auditActionFilter"><option value="">All</option><option value="CREATE">CREATE</option><option value="UPDATE">UPDATE</option><option value="DELETE">DELETE</option></select><button id="applyAuditFilter">Apply</button></div><div style="overflow-x: auto;"><table id="auditLogTable" style="width:100%"><thead><tr><th>ID</th><th>User</th><th>Action</th><th>Module</th><th>Record ID</th><th>Details</th><th>Timestamp</th></tr></thead><tbody></tbody></table></div></div></div>
 
     <script src="js/app.js"></script>
     <script src="js/chart.js"></script>
