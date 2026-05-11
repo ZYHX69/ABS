@@ -45,7 +45,3 @@ CREATE TABLE audit_logs (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-
-INSERT INTO users (username, password, role) VALUES
-('admin', '$2y$10$YourHashedPasswordHere', 'admin'),
-('staff', '$2y$10$YourHashedPasswordHere', 'staff');
