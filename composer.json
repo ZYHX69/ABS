@@ -3,6 +3,7 @@
     "description": "Real‑time salon appointment system with WebSocket CRUD",
     "license": "proprietary",
     "require": {
-        "cboden/ratchet": "^0.4"
+        "cboden/ratchet": "^0.4",
+        "vlucas/phpdotenv": "^5.5"
     }
 }
