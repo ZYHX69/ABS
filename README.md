@@ -1,4 +1,4 @@
-# Salon Appointment System – Elegance & Co.
+# Appointment Business System – Elegance & Co.
 
 A real‑time salon management system with **4 modules** (Clients, Appointments, Services, Public Bookings), **WebSocket CRUD**, **real‑time insights** (counters, activity feed, chart), **role‑based access** (admin/staff), **global search**, **pagination**, **audit logs**, and a **customer booking page** (no login required).
 
